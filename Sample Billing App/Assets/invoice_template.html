@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kay Yem Stores Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .invoice-container {
+            width: 400px;
+            margin: 0 auto;
+            background-color: white;
+            border: 2px solid black;
+            font-size: 12px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 10px;
+            border-bottom: 2px solid black;
+        }
+        
+        .store-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .store-details {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 2px solid black;
+            line-height: 1.4;
+        }
+        
+        .invoice-info {
+            padding: 10px;
+            border-bottom: 2px solid black;
+        }
+        
+        .invoice-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .items-header {
+            display: flex;
+            background-color: #f0f0f0;
+            font-weight: bold;
+            padding: 5px;
+            border-bottom: 1px solid black;
+        }
+        
+        .items-header > div {
+            text-align: center;
+        }
+        
+        .col-no { width: 30px; }
+        .col-item { width: 150px; text-align: left !important; }
+        .col-qty { width: 50px; }
+        .col-mrp { width: 50px; }
+        .col-rate { width: 50px; }
+        .col-total { width: 60px; }
+        
+        .item-row {
+            display: flex;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .item-row > div {
+            text-align: center;
+        }
+        
+        .item-name {
+            text-align: left !important;
+        }
+        
+        .totals {
+            padding: 10px;
+            border-bottom: 2px solid black;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .savings {
+            text-align: center;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .tax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        
+        .tax-table th, .tax-table td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
+        
+        .tax-table th {
+            background-color: #f0f0f0;
+        }
+        
+        .amount-words {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+        
+        .bill-amount {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid black;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .payment-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            font-size: 10px;
+        }
+        
+        .thank-you {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+            border-top: 1px solid black;
+            margin-top: 10px;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px solid black;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="store-name">KAY YEM STORES</div>
+        </div>
+        
+        <!-- Store Details -->
+        <div class="store-details">
+            MUNICIPAL SHOPPING COMPLEX,NGO<br>
+            QUARTERS,KAKKANAD<br>
+            PIN:682021,PH.9995379212<br>
+            GSTIN: 32CVPPM1824A1ZY<br>
+            <strong>Goods &services Tax (GST)Act 2017</strong><br>
+            <strong>RETAIL INVOICE</strong>
+        </div>
+        
+        <!-- Invoice Info -->
+        <div class="invoice-info">
+            <div class="invoice-row">
+                <span><strong>Inv No :</strong> 206</span>
+                <span><strong>Date :</strong> 05-Aug-2025</span>
+            </div>
+            <div class="invoice-row">
+                <span><strong>Name :</strong></span>
+                <span><strong>Inv Time :</strong> 02:30 PM</span>
+            </div>
+            <div class="invoice-row">
+                <span><strong>Mob :</strong></span>
+                <span><strong>GSTIN :</strong></span>
+            </div>
+        </div>
+        
+        <!-- Items Header -->
+        <div class="items-header">
+            <div class="col-no">No.</div>
+            <div class="col-item">Item Name</div>
+            <div class="col-qty">Qty</div>
+            <div class="col-mrp">MRP</div>
+            <div class="col-rate">Rate</div>
+            <div class="col-total">Total</div>
+        </div>
+        
+        <!-- Items -->
+        <div class="item-row">
+            <div class="col-no">1</div>
+            <div class="col-item item-name">BASMATI RICE<br>5KG</div>
+            <div class="col-qty">2.000</div>
+            <div class="col-mrp">450.00</div>
+            <div class="col-rate">425.00</div>
+            <div class="col-total">850.00</div>
+        </div>
+        
+        <div class="item-row">
+            <div class="col-no">2</div>
+            <div class="col-item item-name">SUNFLOWER OIL<br>1LR</div>
+            <div class="col-qty">1.000</div>
+            <div class="col-mrp">180.00</div>
+            <div class="col-rate">175.00</div>
+            <div class="col-total">175.00</div>
+        </div>
+        
+        <div class="item-row">
+            <div class="col-no">3</div>
+            <div class="col-item item-name">TOOR DAL<br>1KG</div>
+            <div class="col-qty">1.000</div>
+            <div class="col-mrp">165.00</div>
+            <div class="col-rate">160.00</div>
+            <div class="col-total">160.00</div>
+        </div>
+        
+        <!-- Totals -->
+        <div class="totals">
+            <div class="total-row">
+                <span>Total Qty : 4.000</span>
+                <span>Net Total : 1185.00</span>
+            </div>
+            
+            <div class="savings">
+                YOU HAVE SAVED Rs. 30.00
+            </div>
+            
+            <table class="tax-table">
+                <tr>
+                    <th>Tax%</th>
+                    <th>Taxable</th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                </tr>
+                <tr>
+                    <td>5.00</td>
+                    <td>1128.57</td>
+                    <td>28.21</td>
+                    <td>28.21</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="amount-words">
+            One Thousand One Hundred Eighty Five Rupees Zero Paisa Only
+        </div>
+        
+        <div class="bill-amount">
+            BILL AMOUNT : 1185.00
+        </div>
+        
+        <div class="payment-info">
+            <span><strong>Payment Type :</strong></span>
+            <span><strong>Amount :</strong></span>
+        </div>
+        
+        <div class="payment-info">
+            <span>CASH</span>
+            <span>1185.00</span>
+        </div>
+        
+        <div class="footer">
+            <span>User : ADMIN</span>
+            <span>DESKTOP-V31P4HI</span>
+        </div>
+        
+        <div class="thank-you">
+            ===========Thank You & Visit Again===========
+        </div>
+    </div>
+</body>
+</html>
