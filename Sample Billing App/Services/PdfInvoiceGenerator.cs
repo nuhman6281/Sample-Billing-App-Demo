@@ -8,108 +8,9 @@ namespace Sample_Billing_App.Services
 {
     public class PdfInvoiceGenerator
     {
-        public static string GenerateInvoicePdf(Invoice invoice, string? outputPath = null)
-        {
-            try
-            {
-                // Validate invoice
-                if (invoice == null)
-                {
-                    throw new ArgumentException("Invoice cannot be null");
-                }
+     
 
-                // Generate unique filename if not provided
-                if (string.IsNullOrEmpty(outputPath))
-                {
-                    string tempDir = Path.GetTempPath();
-                    string fileName = $"Invoice_{invoice.InvoiceNumber}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-                    outputPath = Path.Combine(tempDir, fileName);
-                }
-
-                // Ensure directory exists
-                string? directory = Path.GetDirectoryName(outputPath);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                // For now, we'll create a simple text file as a fallback
-                // since iText7 seems to have initialization issues
-                string textContent = GenerateInvoiceText(invoice);
-                File.WriteAllText(outputPath.Replace(".pdf", ".txt"), textContent);
-
-                // Return the text file path for now
-                return outputPath.Replace(".pdf", ".txt");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error generating invoice: {ex.Message}", ex);
-            }
-        }
-
-        private static string GenerateInvoiceText(Invoice invoice)
-        {
-            var sb = new System.Text.StringBuilder();
-            
-            // Header
-            sb.AppendLine("=".PadRight(60, '='));
-            sb.AppendLine("TUKZO ABC".PadLeft(30));
-            sb.AppendLine("=".PadRight(60, '='));
-            sb.AppendLine("MUNICIPAL SHOPPING COMPLEX, NGO QUARTERS, KAKKANAD");
-            sb.AppendLine("PIN: 682021, PH: 9995379212, GSTIN: 32CVPPM1824A1ZY");
-            sb.AppendLine();
-            
-            // Invoice details
-            sb.AppendLine($"Invoice No: {invoice.InvoiceNumber}");
-            sb.AppendLine($"Date: {invoice.InvoiceDate:dd-MMM-yyyy}");
-            sb.AppendLine($"Customer: {invoice.CustomerName ?? "N/A"}");
-            sb.AppendLine($"Mobile: {invoice.CustomerMobile ?? "N/A"}");
-            sb.AppendLine($"GSTIN: {invoice.CustomerGSTIN ?? "N/A"}");
-            sb.AppendLine($"Payment: {invoice.PaymentType ?? "N/A"}");
-            sb.AppendLine();
-            
-            // Items table
-            sb.AppendLine("-".PadRight(60, '-'));
-            sb.AppendLine("No. | Item Name | Qty | MRP | Rate | Total");
-            sb.AppendLine("-".PadRight(60, '-'));
-            
-            if (invoice.Items != null && invoice.Items.Count > 0)
-            {
-                for (int i = 0; i < invoice.Items.Count; i++)
-                {
-                    var item = invoice.Items[i];
-                    if (item != null)
-                    {
-                        sb.AppendLine($"{i + 1,3} | {item.Name ?? "",-20} | {item.Quantity,5:F3} | {item.MRP,6:F2} | {item.Rate,6:F2} | {item.Total,8:F2}");
-                    }
-                }
-            }
-            
-            sb.AppendLine("-".PadRight(60, '-'));
-            
-            // Totals
-            sb.AppendLine($"Total Quantity: {invoice.TotalQuantity:F3}");
-            sb.AppendLine($"Net Total: ₹{invoice.NetTotal:F2}");
-            sb.AppendLine($"Taxable Amount: ₹{invoice.TaxableAmount:F2}");
-            sb.AppendLine($"CGST (2.5%): ₹{invoice.CGST:F2}");
-            sb.AppendLine($"SGST (2.5%): ₹{invoice.SGST:F2}");
-            sb.AppendLine();
-            
-            // Savings and bill amount
-            sb.AppendLine($"YOU HAVE SAVED Rs. {invoice.TotalSavings:F2}");
-            sb.AppendLine();
-            sb.AppendLine($"BILL AMOUNT: ₹{invoice.BillAmount:F2}");
-            sb.AppendLine($"Amount in Words: {invoice.AmountInWords} Rupees Only");
-            sb.AppendLine();
-            
-            // Footer
-            sb.AppendLine("Thank You & Visit Again");
-            sb.AppendLine($"Printed on: {DateTime.Now:dd-MMM-yyyy HH:mm}");
-            sb.AppendLine("=".PadRight(60, '='));
-            
-            return sb.ToString();
-        }
-
+       
         public static void PrintInvoice(Invoice invoice, string printerName)
         {
             try
@@ -347,36 +248,6 @@ namespace Sample_Billing_App.Services
             }
         }
 
-        public static void PreviewInvoice(Invoice invoice)
-        {
-            try
-            {
-                // Validate invoice
-                if (invoice == null)
-                {
-                    throw new ArgumentException("Invoice cannot be null");
-                }
-
-                // Generate text file for preview
-                string textPath = GenerateInvoicePdf(invoice);
-                
-                // Verify file was created
-                if (!File.Exists(textPath))
-                {
-                    throw new Exception("Invoice file was not created successfully");
-                }
-
-                // Open with default text editor
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = textPath,
-                    UseShellExecute = true
-                });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error previewing invoice: {ex.Message}", ex);
-            }
-        }
+       
     }
 } 

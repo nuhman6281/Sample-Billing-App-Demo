@@ -323,36 +323,6 @@ namespace Sample_Billing_App
             return sb.ToString();
         }
 
-        private void ShowTextPreview()
-        {
-            try
-            {
-                var previewText = $"TUKZO ABC INVOICE\n" +
-                                 $"Invoice No: {_currentInvoice.InvoiceNumber}\n" +
-                                 $"Date: {_currentInvoice.InvoiceDate:dd-MMM-yyyy}\n" +
-                                 $"Customer: {_currentInvoice.CustomerName}\n" +
-                                 $"Mobile: {_currentInvoice.CustomerMobile}\n" +
-                                 $"GSTIN: {_currentInvoice.CustomerGSTIN}\n" +
-                                 $"Payment: {_currentInvoice.PaymentType}\n\n" +
-                                 $"ITEMS:\n";
-
-                foreach (var item in _currentInvoice.Items)
-                {
-                    previewText += $"{item.Id}. {item.Name} ({item.Description}) - Qty: {item.Quantity}, Rate: ₹{item.Rate:F2}, Total: ₹{item.Total:F2}\n";
-                }
-
-                previewText += $"\nTOTAL: ₹{_currentInvoice.NetTotal:F2}\n" +
-                              $"SAVINGS: ₹{_currentInvoice.TotalSavings:F2}\n" +
-                              $"BILL AMOUNT: ₹{_currentInvoice.BillAmount:F2}";
-
-                MessageBox.Show(previewText, "Invoice Preview (Text)", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error showing text preview: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void LoadRandomSampleData()
         {
             // Generate random customer data
@@ -397,57 +367,7 @@ namespace Sample_Billing_App
             }
         }
 
-        private void TestHtmlGeneration()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("=== Testing HTML Generation ===");
-                
-                // Create a test invoice
-                var testInvoice = new Invoice
-                {
-                    InvoiceNumber = 999,
-                    CustomerName = "Test Customer",
-                    CustomerMobile = "1234567890",
-                    CustomerGSTIN = "TEST123456789",
-                    PaymentType = "CASH"
-                };
-
-                // Add a test item
-                testInvoice.Items.Add(new InvoiceItem
-                {
-                    Id = 1,
-                    Name = "TEST ITEM",
-                    Description = "1KG",
-                    Quantity = 2.5m,
-                    MRP = 100.00m,
-                    Rate = 90.00m
-                });
-
-                System.Diagnostics.Debug.WriteLine($"Test invoice created with {testInvoice.Items.Count} items");
-
-                // Generate HTML
-                string testHtml = InvoiceGenerator.GenerateInvoiceHtml(testInvoice, "TUKZO ABC");
-                System.Diagnostics.Debug.WriteLine($"Test HTML generated successfully. Length: {testHtml.Length}");
-                
-                // Show in preview if browser is available
-                // This part of the code is no longer relevant as we are using PDF preview
-                // if (_previewBrowser != null)
-                // {
-                //     _previewBrowser.DocumentText = testHtml;
-                //     System.Diagnostics.Debug.WriteLine("Test HTML loaded into preview browser");
-                // }
-                // else
-                // {
-                //     System.Diagnostics.Debug.WriteLine("WARNING: Preview browser is null during test");
-                // }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Test HTML generation failed: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            }
-        }
+      
 
         private void UpdateItemDetails()
         {
@@ -572,56 +492,7 @@ namespace Sample_Billing_App
             lblItemTotal.Text = "Total: ₹0.00";
         }
 
-        private void UpdatePreview()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("UpdatePreview called - PDF approach");
-                
-                if (_currentInvoice == null)
-                {
-                    System.Diagnostics.Debug.WriteLine("ERROR: _currentInvoice is null");
-                    return;
-                }
-
-                // With PDF approach, we don't need live preview updates
-                // PDF will be generated on demand when user clicks "Refresh Preview"
-                System.Diagnostics.Debug.WriteLine("PDF preview system - no live updates needed");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Preview update error: {ex.Message}");
-            }
-        }
-
-        // Debounced preview update method
-        private void DebouncedUpdatePreview()
-        {
-            try
-            {
-                // Cancel existing timer if running
-                // This logic is no longer relevant as we are using PDF preview
-                // _previewUpdateTimer?.Dispose();
-                
-                // Create new timer for debounced update
-                // This logic is no longer relevant as we are using PDF preview
-                // _previewUpdateTimer = new System.Threading.Timer(_ => 
-                // {
-                //     if (this.InvokeRequired)
-                //     {
-                //         this.Invoke(new Action(UpdatePreview));
-                //     }
-                //     else
-                //     {
-                //         UpdatePreview();
-                //     }
-                // }, null, 300, Timeout.Infinite); // 300ms delay
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error in debounced update: {ex.Message}");
-            }
-        }
+     
 
         private void BtnPrint_Click(object sender, EventArgs e)
         {
