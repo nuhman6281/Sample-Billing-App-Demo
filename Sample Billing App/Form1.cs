@@ -164,7 +164,7 @@ namespace Sample_Billing_App
                 };
 
                 // Generate HTML content
-                string htmlContent = GenerateInvoiceHtml(_currentInvoice);
+                string htmlContent = PdfInvoiceGenerator.GenerateInvoiceHtml(_currentInvoice);
                 previewBrowser.DocumentText = htmlContent;
 
                 // Add to the preview panel
@@ -188,140 +188,7 @@ namespace Sample_Billing_App
             }
         }
 
-        private string GenerateInvoiceHtml(Invoice invoice)
-        {
-            var sb = new System.Text.StringBuilder();
-            
-            // Start HTML document
-            sb.AppendLine("<!DOCTYPE html>");
-            sb.AppendLine("<html>");
-            sb.AppendLine("<head>");
-            sb.AppendLine("<meta charset='utf-8'>");
-            sb.AppendLine("<title>Invoice Preview</title>");
-            sb.AppendLine("<style>");
-            sb.AppendLine("@media print {");
-            sb.AppendLine("  body { margin: 0; padding: 10px; }");
-            sb.AppendLine("  .invoice-container { max-width: none; margin: 0; border: none; }");
-            sb.AppendLine("  .no-print { display: none; }");
-            sb.AppendLine("}");
-            sb.AppendLine("body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; font-size: 14px; }");
-            sb.AppendLine(".invoice-container { max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }");
-            sb.AppendLine(".header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }");
-            sb.AppendLine(".store-name { font-size: 24px; font-weight: bold; color: #333; }");
-            sb.AppendLine(".store-details { font-size: 12px; color: #666; margin-top: 5px; }");
-            sb.AppendLine(".invoice-info { margin-bottom: 20px; }");
-            sb.AppendLine(".info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }");
-            sb.AppendLine(".info-label { font-weight: bold; }");
-            sb.AppendLine("table { width: 100%; border-collapse: collapse; margin: 20px 0; }");
-            sb.AppendLine("th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }");
-            sb.AppendLine("th { background-color: #f2f2f2; font-weight: bold; }");
-            sb.AppendLine(".totals { margin-top: 20px; }");
-            sb.AppendLine(".total-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; }");
-            sb.AppendLine(".savings { background-color: #fff3cd; padding: 10px; text-align: center; margin: 10px 0; border: 1px solid #ffeaa7; }");
-            sb.AppendLine(".bill-amount { background-color: #d1ecf1; padding: 15px; text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; border: 2px solid #bee5eb; }");
-            sb.AppendLine(".footer { text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #ddd; color: #666; }");
-            sb.AppendLine("</style>");
-            sb.AppendLine("</head>");
-            sb.AppendLine("<body>");
-            sb.AppendLine("<div class='invoice-container'>");
-            
-            // Header
-            sb.AppendLine("<div class='header'>");
-            sb.AppendLine("<div class='store-name'>TUKZO ABC</div>");
-            sb.AppendLine("<div class='store-details'>");
-            sb.AppendLine("MUNICIPAL SHOPPING COMPLEX, NGO QUARTERS, KAKKANAD<br>");
-            sb.AppendLine("PIN: 682021, PH: 9995379212<br>");
-            sb.AppendLine("GSTIN: 32CVPPM1824A1ZY");
-            sb.AppendLine("</div>");
-            sb.AppendLine("</div>");
-            
-            // Invoice details
-            sb.AppendLine("<div class='invoice-info'>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>Invoice No:</span><span>{invoice.InvoiceNumber}</span></div>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>Date:</span><span>{invoice.InvoiceDate:dd-MMM-yyyy}</span></div>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>Customer:</span><span>{invoice.CustomerName ?? "N/A"}</span></div>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>Mobile:</span><span>{invoice.CustomerMobile ?? "N/A"}</span></div>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>GSTIN:</span><span>{invoice.CustomerGSTIN ?? "N/A"}</span></div>");
-            sb.AppendLine($"<div class='info-row'><span class='info-label'>Payment Type:</span><span>{invoice.PaymentType ?? "N/A"}</span></div>");
-            sb.AppendLine("</div>");
-            
-            // Items table
-            sb.AppendLine("<table>");
-            sb.AppendLine("<thead>");
-            sb.AppendLine("<tr>");
-            sb.AppendLine("<th>No.</th>");
-            sb.AppendLine("<th>Item Name</th>");
-            sb.AppendLine("<th>Qty</th>");
-            sb.AppendLine("<th>MRP</th>");
-            sb.AppendLine("<th>Rate</th>");
-            sb.AppendLine("<th>Total</th>");
-            sb.AppendLine("</tr>");
-            sb.AppendLine("</thead>");
-            sb.AppendLine("<tbody>");
-            
-            if (invoice.Items != null && invoice.Items.Count > 0)
-            {
-                for (int i = 0; i < invoice.Items.Count; i++)
-                {
-                    var item = invoice.Items[i];
-                    if (item != null)
-                    {
-                        sb.AppendLine("<tr>");
-                        sb.AppendLine($"<td>{i + 1}</td>");
-                        sb.AppendLine($"<td>{item.Name ?? ""}</td>");
-                        sb.AppendLine($"<td>{item.Quantity:F3}</td>");
-                        sb.AppendLine($"<td>{item.MRP:F2}</td>");
-                        sb.AppendLine($"<td>{item.Rate:F2}</td>");
-                        sb.AppendLine($"<td>{item.Total:F2}</td>");
-                        sb.AppendLine("</tr>");
-                    }
-                }
-            }
-            
-            sb.AppendLine("</tbody>");
-            sb.AppendLine("</table>");
-            
-            // Totals
-            sb.AppendLine("<div class='totals'>");
-            sb.AppendLine($"<div class='total-row'><span>Total Quantity:</span><span>{invoice.TotalQuantity:F3}</span></div>");
-            sb.AppendLine($"<div class='total-row'><span>Net Total:</span><span>₹{invoice.NetTotal:F2}</span></div>");
-            sb.AppendLine($"<div class='total-row'><span>Taxable Amount:</span><span>₹{invoice.TaxableAmount:F2}</span></div>");
-            sb.AppendLine($"<div class='total-row'><span>CGST (2.5%):</span><span>₹{invoice.CGST:F2}</span></div>");
-            sb.AppendLine($"<div class='total-row'><span>SGST (2.5%):</span><span>₹{invoice.SGST:F2}</span></div>");
-            sb.AppendLine("</div>");
-            
-            // Savings
-            sb.AppendLine($"<div class='savings'>YOU HAVE SAVED Rs. {invoice.TotalSavings:F2}</div>");
-            
-            // Bill amount
-            sb.AppendLine($"<div class='bill-amount'>BILL AMOUNT: ₹{invoice.BillAmount:F2}</div>");
-            
-            // Amount in words
-            string amountInWords = "Zero";
-            try
-            {
-                amountInWords = invoice.AmountInWords;
-            }
-            catch (Exception ex)
-            {
-                // Log the error for debugging
-                System.Diagnostics.Debug.WriteLine($"Error converting amount to words: {ex.Message}");
-                amountInWords = $"Amount: {invoice.BillAmount:F2}";
-            }
-            sb.AppendLine($"<div style='text-align: center; margin: 20px 0;'>Amount in Words: {amountInWords} Rupees Only</div>");
-            
-            // Footer
-            sb.AppendLine("<div class='footer'>");
-            sb.AppendLine("<strong>Thank You & Visit Again</strong><br>");
-            sb.AppendLine($"<small>Printed on: {DateTime.Now:dd-MMM-yyyy HH:mm}</small>");
-            sb.AppendLine("</div>");
-            
-            sb.AppendLine("</div>");
-            sb.AppendLine("</body>");
-            sb.AppendLine("</html>");
-            
-            return sb.ToString();
-        }
+       
 
         private void LoadRandomSampleData()
         {
