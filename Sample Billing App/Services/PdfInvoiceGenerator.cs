@@ -251,148 +251,150 @@ namespace Sample_Billing_App.Services
         }
 
         private static void DrawInvoiceHtml(Graphics g, Invoice invoice, int availableWidth = 0, int availableHeight = 0)
+{
+    try
+    {
+        if (g == null) throw new ArgumentException("Graphics object cannot be null");
+        if (invoice == null) throw new ArgumentException("Invoice cannot be null");
+
+        // OCR-OPTIMIZED GRAPHICS SETTINGS - Only change these for better OCR
+        g.SmoothingMode = SmoothingMode.None;                    // Sharp edges instead of AntiAlias
+        g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel; // Crisp text instead of ClearTypeGridFit
+        g.CompositingQuality = CompositingQuality.HighSpeed;     // No blending effects
+
+        // Use available dimensions or default to reasonable size
+        int canvasWidth = availableWidth > 0 ? availableWidth : 800;
+        int canvasHeight = availableHeight > 0 ? availableHeight : 1000;
+
+        // Keep original padding and spacing - NO CHANGES
+        int contentPadding = 5; // Minimal padding just for readability
+        int sectionSpacing = Math.Max((int)(canvasWidth * 0.01), 5); // 1% spacing or minimum 5px
+
+        // Keep original font calculation - NO CHANGES
+        float vwUnit = canvasWidth / 100f;
+        
+        // Calculate font sizes matching HTML CSS exactly - NO CHANGES
+        float titleFontSize, storeDetailsFontSize, infoRowFontSize, tableFontSize,
+              totalRowFontSize, savingsFontSize, billAmountFontSize, amountWordsFontSize, footerFontSize;
+
+        // Apply responsive breakpoints matching HTML - NO CHANGES
+        if (canvasWidth <= 600)
         {
-            try
-            {
-                if (g == null) throw new ArgumentException("Graphics object cannot be null");
-                if (invoice == null) throw new ArgumentException("Invoice cannot be null");
+            titleFontSize = 24f;          
+            storeDetailsFontSize = 12f;   
+            infoRowFontSize = 14f;        
+            tableFontSize = 12f;          
+            totalRowFontSize = 14f;       
+            savingsFontSize = 14f;        
+            billAmountFontSize = 18f;     
+            amountWordsFontSize = 12f;    
+            footerFontSize = 12f;         
+        }
+        else if (canvasWidth >= 1200)
+        {
+            titleFontSize = 48f;          
+            storeDetailsFontSize = 24f;   
+            infoRowFontSize = 30f;        
+            tableFontSize = 24f;          
+            totalRowFontSize = 30f;       
+            savingsFontSize = 30f;        
+            billAmountFontSize = 36f;     
+            amountWordsFontSize = 24f;    
+            footerFontSize = 24f;         
+        }
+        else
+        {
+            titleFontSize = 4f * vwUnit;      
+            storeDetailsFontSize = 2f * vwUnit; 
+            infoRowFontSize = 2.5f * vwUnit;   
+            tableFontSize = 2f * vwUnit;       
+            totalRowFontSize = 2.5f * vwUnit;  
+            savingsFontSize = 2.5f * vwUnit;   
+            billAmountFontSize = 3f * vwUnit;  
+            amountWordsFontSize = 2f * vwUnit; 
+            footerFontSize = 2f * vwUnit;      
+        }
 
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        // Apply minimum font sizes to ensure readability - NO CHANGES
+        titleFontSize = Math.Max(titleFontSize, 10f);
+        storeDetailsFontSize = Math.Max(storeDetailsFontSize, 8f);
+        infoRowFontSize = Math.Max(infoRowFontSize, 8f);
+        tableFontSize = Math.Max(tableFontSize, 7f);
+        totalRowFontSize = Math.Max(totalRowFontSize, 8f);
+        savingsFontSize = Math.Max(savingsFontSize, 8f);
+        billAmountFontSize = Math.Max(billAmountFontSize, 10f);
+        amountWordsFontSize = Math.Max(amountWordsFontSize, 7f);
+        footerFontSize = Math.Max(footerFontSize, 7f);
 
-                // Use available dimensions or default to reasonable size
-                int canvasWidth = availableWidth > 0 ? availableWidth : 800;
-                int canvasHeight = availableHeight > 0 ? availableHeight : 1000;
+        // Create fonts - NO CHANGES
+        var titleFont = new Font("Arial", titleFontSize, FontStyle.Bold);
+        var storeDetailsFont = new Font("Arial", storeDetailsFontSize, FontStyle.Regular);
+        var infoLabelFont = new Font("Arial", infoRowFontSize, FontStyle.Bold);
+        var infoValueFont = new Font("Arial", infoRowFontSize, FontStyle.Regular);
+        var tableHeaderFont = new Font("Arial", tableFontSize, FontStyle.Bold);
+        var tableCellFont = new Font("Arial", tableFontSize, FontStyle.Regular);
+        var totalRowFont = new Font("Arial", totalRowFontSize, FontStyle.Bold);
+        var savingsFont = new Font("Arial", savingsFontSize, FontStyle.Regular);
+        var billAmountFont = new Font("Arial", billAmountFontSize, FontStyle.Bold);
+        var amountWordsFont = new Font("Arial", amountWordsFontSize, FontStyle.Regular);
+        var footerMainFont = new Font("Arial", footerFontSize, FontStyle.Bold);
+        var footerSmallFont = new Font("Arial", footerFontSize, FontStyle.Regular);
 
-                // REMOVE PADDING - Use full width for print
-                int contentPadding = 5; // Minimal padding just for readability
-                int sectionSpacing = Math.Max((int)(canvasWidth * 0.01), 5); // 1% spacing or minimum 5px
+        // Calculate spacing - NO CHANGES
+        int lineHeight = Math.Max((int)(infoRowFontSize * 1.4f), 12);
+        int rowHeight = Math.Max((int)(tableFontSize * 2.5f), 16);
 
-                // RESPONSIVE FONT CALCULATION - Matching HTML vw units exactly
-                float vwUnit = canvasWidth / 100f;
+        // Define colors - ONLY make text more OCR-friendly
+        var backgroundColor = Color.White;
+        var headerTextColor = Color.Black;                       // Pure black instead of gray for OCR
+        var tableBorderColor = Color.Black;                      // Pure black instead of gray for OCR
+        var tableHeaderColor = Color.FromArgb(242, 242, 242);
+        var savingsColor = Color.FromArgb(255, 243, 205);
+        var savingsBorderColor = Color.FromArgb(255, 234, 167);
+        var billAmountColor = Color.FromArgb(209, 236, 241);
+        var billAmountBorderColor = Color.FromArgb(190, 229, 235);
+        var footerColor = Color.Black;                           // Pure black instead of gray for OCR
 
-                // Calculate font sizes matching HTML CSS exactly
-                float titleFontSize, storeDetailsFontSize, infoRowFontSize, tableFontSize,
-                      totalRowFontSize, savingsFontSize, billAmountFontSize, amountWordsFontSize, footerFontSize;
+        // USE FULL WIDTH - No margins - NO CHANGES
+        int currentY = contentPadding;
+        int leftMargin = contentPadding;
+        int rightMargin = canvasWidth - contentPadding;
+        int contentWidth = canvasWidth - (contentPadding * 2);
 
-                // Apply responsive breakpoints matching HTML
-                if (canvasWidth <= 600)
-                {
-                    titleFontSize = 24f;
-                    storeDetailsFontSize = 12f;
-                    infoRowFontSize = 14f;
-                    tableFontSize = 12f;
-                    totalRowFontSize = 14f;
-                    savingsFontSize = 14f;
-                    billAmountFontSize = 18f;
-                    amountWordsFontSize = 12f;
-                    footerFontSize = 12f;
-                }
-                else if (canvasWidth >= 1200)
-                {
-                    titleFontSize = 48f;
-                    storeDetailsFontSize = 24f;
-                    infoRowFontSize = 30f;
-                    tableFontSize = 24f;
-                    totalRowFontSize = 30f;
-                    savingsFontSize = 30f;
-                    billAmountFontSize = 36f;
-                    amountWordsFontSize = 24f;
-                    footerFontSize = 24f;
-                }
-                else
-                {
-                    titleFontSize = 4f * vwUnit;
-                    storeDetailsFontSize = 2f * vwUnit;
-                    infoRowFontSize = 2.5f * vwUnit;
-                    tableFontSize = 2f * vwUnit;
-                    totalRowFontSize = 2.5f * vwUnit;
-                    savingsFontSize = 2.5f * vwUnit;
-                    billAmountFontSize = 3f * vwUnit;
-                    amountWordsFontSize = 2f * vwUnit;
-                    footerFontSize = 2f * vwUnit;
-                }
+        // Fill full background - NO CHANGES
+        g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, canvasWidth, canvasHeight);
 
-                // Apply minimum font sizes to ensure readability
-                titleFontSize = Math.Max(titleFontSize, 10f);
-                storeDetailsFontSize = Math.Max(storeDetailsFontSize, 8f);
-                infoRowFontSize = Math.Max(infoRowFontSize, 8f);
-                tableFontSize = Math.Max(tableFontSize, 7f);
-                totalRowFontSize = Math.Max(totalRowFontSize, 8f);
-                savingsFontSize = Math.Max(savingsFontSize, 8f);
-                billAmountFontSize = Math.Max(billAmountFontSize, 10f);
-                amountWordsFontSize = Math.Max(amountWordsFontSize, 7f);
-                footerFontSize = Math.Max(footerFontSize, 7f);
+        // HEADER SECTION - Full width - NO CHANGES
+        var titleSize = g.MeasureString("TUKZO ABC", titleFont);
+        g.DrawString("TUKZO ABC", titleFont, new SolidBrush(headerTextColor),
+            leftMargin + (contentWidth - titleSize.Width) / 2, currentY);
+        currentY += (int)(titleSize.Height + sectionSpacing);
 
-                // Create fonts
-                var titleFont = new Font("Arial", titleFontSize, FontStyle.Bold);
-                var storeDetailsFont = new Font("Arial", storeDetailsFontSize, FontStyle.Regular);
-                var infoLabelFont = new Font("Arial", infoRowFontSize, FontStyle.Bold);
-                var infoValueFont = new Font("Arial", infoRowFontSize, FontStyle.Regular);
-                var tableHeaderFont = new Font("Arial", tableFontSize, FontStyle.Bold);
-                var tableCellFont = new Font("Arial", tableFontSize, FontStyle.Regular);
-                var totalRowFont = new Font("Arial", totalRowFontSize, FontStyle.Bold);
-                var savingsFont = new Font("Arial", savingsFontSize, FontStyle.Regular);
-                var billAmountFont = new Font("Arial", billAmountFontSize, FontStyle.Bold);
-                var amountWordsFont = new Font("Arial", amountWordsFontSize, FontStyle.Regular);
-                var footerMainFont = new Font("Arial", footerFontSize, FontStyle.Bold);
-                var footerSmallFont = new Font("Arial", footerFontSize, FontStyle.Regular);
-
-                // Calculate spacing
-                int lineHeight = Math.Max((int)(infoRowFontSize * 1.4f), 12);
-                int rowHeight = Math.Max((int)(tableFontSize * 2.5f), 16);
-
-                // Define colors
-                var backgroundColor = Color.White; // Remove gray background for print
-                var headerTextColor = Color.FromArgb(51, 51, 51);
-                var tableBorderColor = Color.FromArgb(221, 221, 221);
-                var tableHeaderColor = Color.FromArgb(242, 242, 242);
-                var savingsColor = Color.FromArgb(255, 243, 205);
-                var savingsBorderColor = Color.FromArgb(255, 234, 167);
-                var billAmountColor = Color.FromArgb(209, 236, 241);
-                var billAmountBorderColor = Color.FromArgb(190, 229, 235);
-                var footerColor = Color.FromArgb(102, 102, 102);
-
-                // USE FULL WIDTH - No margins
-                int currentY = contentPadding;
-                int leftMargin = contentPadding;
-                int rightMargin = canvasWidth - contentPadding;
-                int contentWidth = canvasWidth - (contentPadding * 2);
-
-                // Fill full background
-                g.FillRectangle(new SolidBrush(backgroundColor), 0, 0, canvasWidth, canvasHeight);
-
-                // HEADER SECTION - Full width
-                var titleSize = g.MeasureString("TUKZO ABC", titleFont);
-                g.DrawString("TUKZO ABC", titleFont, new SolidBrush(headerTextColor),
-                    leftMargin + (contentWidth - titleSize.Width) / 2, currentY);
-                currentY += (int)(titleSize.Height + sectionSpacing);
-
-                // Store details - full width
-                string[] storeDetails = {
+        // Store details - full width - NO CHANGES
+        string[] storeDetails = {
             "MUNICIPAL SHOPPING COMPLEX",
             "NGO QUARTERS, KAKKANAD",
             "PIN: 682021, PH: 9995379212",
             "GSTIN: 32CVPPM1824A1ZY"
         };
 
-                var detailsBrush = new SolidBrush(Color.FromArgb(102, 102, 102));
+        var detailsBrush = new SolidBrush(Color.Black); // Pure black for OCR
 
-                foreach (string detail in storeDetails)
-                {
-                    var detailSize = g.MeasureString(detail, storeDetailsFont);
-                    g.DrawString(detail, storeDetailsFont, detailsBrush,
-                        leftMargin + (contentWidth - detailSize.Width) / 2, currentY);
-                    currentY += (int)(detailSize.Height * 1.3f);
-                }
+        foreach (string detail in storeDetails)
+        {
+            var detailSize = g.MeasureString(detail, storeDetailsFont);
+            g.DrawString(detail, storeDetailsFont, detailsBrush,
+                leftMargin + (contentWidth - detailSize.Width) / 2, currentY);
+            currentY += (int)(detailSize.Height * 1.3f);
+        }
 
-                // Header border - full width
-                currentY += sectionSpacing;
-                g.DrawLine(new Pen(headerTextColor, 2), leftMargin, currentY, rightMargin, currentY);
-                currentY += sectionSpacing;
+        // Header border - full width - NO CHANGES
+        currentY += sectionSpacing;
+        g.DrawLine(new Pen(headerTextColor, 2), leftMargin, currentY, rightMargin, currentY);
+        currentY += sectionSpacing;
 
-                // INVOICE INFO SECTION - Full width layout
-                string[,] invoiceInfo = {
+        // INVOICE INFO SECTION - Full width layout with better spacing - NO CHANGES
+        string[,] invoiceInfo = {
             {"Invoice No:", invoice.InvoiceNumber.ToString()},
             {"Date:", invoice.InvoiceDate.ToString("dd-MMM-yyyy")},
             {"Customer:", invoice.CustomerName ?? "N/A"},
@@ -401,84 +403,85 @@ namespace Sample_Billing_App.Services
             {"Payment:", invoice.PaymentType ?? "N/A"}
         };
 
-                for (int i = 0; i < invoiceInfo.GetLength(0); i++)
+        for (int i = 0; i < invoiceInfo.GetLength(0); i++)
+        {
+            g.DrawString(invoiceInfo[i, 0], infoLabelFont, new SolidBrush(Color.Black), leftMargin, currentY);
+
+            var valueSize = g.MeasureString(invoiceInfo[i, 1], infoValueFont);
+            g.DrawString(invoiceInfo[i, 1], infoValueFont, new SolidBrush(Color.Black),
+                rightMargin - valueSize.Width, currentY);
+
+            // Add extra spacing between invoice info rows - NO CHANGES
+            currentY += lineHeight + (int)(lineHeight * 0.2f); // 20% extra spacing
+        }
+
+        currentY += sectionSpacing;
+
+        // ITEMS TABLE - Full width - NO CHANGES
+        float[] columnPercents = { 0.08f, 0.40f, 0.13f, 0.13f, 0.13f, 0.13f };
+        int[] columnWidths = new int[columnPercents.Length];
+        int[] columnX = new int[columnPercents.Length];
+
+        columnX[0] = leftMargin;
+        for (int i = 0; i < columnPercents.Length; i++)
+        {
+            columnWidths[i] = (int)(contentWidth * columnPercents[i]);
+            if (i > 0) columnX[i] = columnX[i - 1] + columnWidths[i - 1];
+        }
+
+        // Table header - spans full content width - NO CHANGES
+        var headerRect = new Rectangle(leftMargin, currentY, contentWidth, rowHeight);
+        g.FillRectangle(new SolidBrush(tableHeaderColor), headerRect);
+        g.DrawRectangle(new Pen(tableBorderColor, 1), headerRect);
+
+        string[] headers = { "No.", "Item", "Qty", "MRP", "Rate", "Total" };
+        for (int i = 0; i < headers.Length; i++)
+        {
+            var headerTextRect = new Rectangle(columnX[i], currentY, columnWidths[i], rowHeight);
+            var sf = new StringFormat()
+            {
+                Alignment = i == 1 ? StringAlignment.Near : StringAlignment.Center,
+                LineAlignment = StringAlignment.Center
+            };
+
+            if (i == 1) // Item column padding - NO CHANGES
+            {
+                headerTextRect.X += 3;
+                headerTextRect.Width -= 6;
+            }
+
+            g.DrawString(headers[i], tableHeaderFont, new SolidBrush(Color.Black), headerTextRect, sf);
+
+            // Vertical borders - NO CHANGES
+            if (i < headers.Length - 1)
+            {
+                g.DrawLine(new Pen(tableBorderColor, 1),
+                          columnX[i] + columnWidths[i], currentY,
+                          columnX[i] + columnWidths[i], currentY + rowHeight);
+            }
+        }
+
+        currentY += rowHeight;
+
+        // Table rows - full width - NO CHANGES
+        if (invoice.Items != null && invoice.Items.Count > 0)
+        {
+            for (int i = 0; i < invoice.Items.Count; i++)
+            {
+                var item = invoice.Items[i];
+                if (item != null)
                 {
-                    g.DrawString(invoiceInfo[i, 0], infoLabelFont, new SolidBrush(Color.Black), leftMargin, currentY);
+                    var rowRect = new Rectangle(leftMargin, currentY, contentWidth, rowHeight);
 
-                    var valueSize = g.MeasureString(invoiceInfo[i, 1], infoValueFont);
-                    g.DrawString(invoiceInfo[i, 1], infoValueFont, new SolidBrush(Color.Black),
-                        rightMargin - valueSize.Width, currentY);
-
-                    currentY += lineHeight;
-                }
-
-                currentY += sectionSpacing;
-
-                // ITEMS TABLE - Full width
-                float[] columnPercents = { 0.08f, 0.40f, 0.13f, 0.13f, 0.13f, 0.13f };
-                int[] columnWidths = new int[columnPercents.Length];
-                int[] columnX = new int[columnPercents.Length];
-
-                columnX[0] = leftMargin;
-                for (int i = 0; i < columnPercents.Length; i++)
-                {
-                    columnWidths[i] = (int)(contentWidth * columnPercents[i]);
-                    if (i > 0) columnX[i] = columnX[i - 1] + columnWidths[i - 1];
-                }
-
-                // Table header - spans full content width
-                var headerRect = new Rectangle(leftMargin, currentY, contentWidth, rowHeight);
-                g.FillRectangle(new SolidBrush(tableHeaderColor), headerRect);
-                g.DrawRectangle(new Pen(tableBorderColor, 1), headerRect);
-
-                string[] headers = { "No.", "Item", "Qty", "MRP", "Rate", "Total" };
-                for (int i = 0; i < headers.Length; i++)
-                {
-                    var headerTextRect = new Rectangle(columnX[i], currentY, columnWidths[i], rowHeight);
-                    var sf = new StringFormat()
+                    // Alternating row colors - NO CHANGES
+                    if (i % 2 == 1)
                     {
-                        Alignment = i == 1 ? StringAlignment.Near : StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center
-                    };
-
-                    if (i == 1) // Item column padding
-                    {
-                        headerTextRect.X += 3;
-                        headerTextRect.Width -= 6;
+                        g.FillRectangle(new SolidBrush(Color.FromArgb(249, 249, 249)), rowRect);
                     }
 
-                    g.DrawString(headers[i], tableHeaderFont, new SolidBrush(Color.Black), headerTextRect, sf);
+                    g.DrawRectangle(new Pen(tableBorderColor, 1), rowRect);
 
-                    // Vertical borders
-                    if (i < headers.Length - 1)
-                    {
-                        g.DrawLine(new Pen(tableBorderColor, 1),
-                                  columnX[i] + columnWidths[i], currentY,
-                                  columnX[i] + columnWidths[i], currentY + rowHeight);
-                    }
-                }
-
-                currentY += rowHeight;
-
-                // Table rows - full width
-                if (invoice.Items != null && invoice.Items.Count > 0)
-                {
-                    for (int i = 0; i < invoice.Items.Count; i++)
-                    {
-                        var item = invoice.Items[i];
-                        if (item != null)
-                        {
-                            var rowRect = new Rectangle(leftMargin, currentY, contentWidth, rowHeight);
-
-                            // Alternating row colors
-                            if (i % 2 == 1)
-                            {
-                                g.FillRectangle(new SolidBrush(Color.FromArgb(249, 249, 249)), rowRect);
-                            }
-
-                            g.DrawRectangle(new Pen(tableBorderColor, 1), rowRect);
-
-                            string[] values = {
+                    string[] values = {
                         (i + 1).ToString(),
                         item.Name ?? "",
                         item.Quantity.ToString("F2"),
@@ -487,42 +490,42 @@ namespace Sample_Billing_App.Services
                         item.Total.ToString("F2")
                     };
 
-                            for (int j = 0; j < values.Length; j++)
-                            {
-                                var cellRect = new Rectangle(columnX[j], currentY, columnWidths[j], rowHeight);
-                                var sf = new StringFormat()
-                                {
-                                    Alignment = j == 1 ? StringAlignment.Near : StringAlignment.Center,
-                                    LineAlignment = StringAlignment.Center,
-                                    Trimming = StringTrimming.EllipsisCharacter
-                                };
+                    for (int j = 0; j < values.Length; j++)
+                    {
+                        var cellRect = new Rectangle(columnX[j], currentY, columnWidths[j], rowHeight);
+                        var sf = new StringFormat()
+                        {
+                            Alignment = j == 1 ? StringAlignment.Near : StringAlignment.Center,
+                            LineAlignment = StringAlignment.Center,
+                            Trimming = StringTrimming.EllipsisCharacter
+                        };
 
-                                if (j == 1) // Item name padding
-                                {
-                                    cellRect.X += 3;
-                                    cellRect.Width -= 6;
-                                }
+                        if (j == 1) // Item name padding - NO CHANGES
+                        {
+                            cellRect.X += 3;
+                            cellRect.Width -= 6;
+                        }
 
-                                g.DrawString(values[j], tableCellFont, new SolidBrush(Color.Black), cellRect, sf);
+                        g.DrawString(values[j], tableCellFont, new SolidBrush(Color.Black), cellRect, sf);
 
-                                // Vertical borders
-                                if (j < values.Length - 1)
-                                {
-                                    g.DrawLine(new Pen(tableBorderColor, 1),
-                                              columnX[j] + columnWidths[j], currentY,
-                                              columnX[j] + columnWidths[j], currentY + rowHeight);
-                                }
-                            }
-
-                            currentY += rowHeight;
+                        // Vertical borders - NO CHANGES
+                        if (j < values.Length - 1)
+                        {
+                            g.DrawLine(new Pen(tableBorderColor, 1),
+                                      columnX[j] + columnWidths[j], currentY,
+                                      columnX[j] + columnWidths[j], currentY + rowHeight);
                         }
                     }
+
+                    currentY += rowHeight;
                 }
+            }
+        }
 
-                currentY += sectionSpacing;
+        currentY += sectionSpacing;
 
-                // TOTALS SECTION - Full width
-                string[,] totals = {
+        // TOTALS SECTION - Full width with better spacing - NO CHANGES
+        string[,] totals = {
             {"Total Qty:", invoice.TotalQuantity.ToString("F2")},
             {"Net Total:", $"₹{invoice.NetTotal:F2}"},
             {"Taxable:", $"₹{invoice.TaxableAmount:F2}"},
@@ -530,129 +533,130 @@ namespace Sample_Billing_App.Services
             {"SGST (2.5%):", $"₹{invoice.SGST:F2}"}
         };
 
-                for (int i = 0; i < totals.GetLength(0); i++)
-                {
-                    g.DrawString(totals[i, 0], totalRowFont, new SolidBrush(Color.Black), leftMargin, currentY);
+        for (int i = 0; i < totals.GetLength(0); i++)
+        {
+            g.DrawString(totals[i, 0], totalRowFont, new SolidBrush(Color.Black), leftMargin, currentY);
 
-                    var valueSize = g.MeasureString(totals[i, 1], totalRowFont);
-                    g.DrawString(totals[i, 1], totalRowFont, new SolidBrush(Color.Black),
-                        rightMargin - valueSize.Width, currentY);
+            var valueSize = g.MeasureString(totals[i, 1], totalRowFont);
+            g.DrawString(totals[i, 1], totalRowFont, new SolidBrush(Color.Black),
+                rightMargin - valueSize.Width, currentY);
 
-                    currentY += lineHeight;
-                }
+            // Add extra spacing between totals rows - NO CHANGES
+            currentY += lineHeight + (int)(lineHeight * 0.25f); // 25% extra spacing
+        }
 
-                currentY += sectionSpacing;
+        currentY += sectionSpacing;
 
-                // SAVINGS SECTION - Full width
-                int savingsHeight = (int)(savingsFontSize * 2.5f);
-                var savingsRect = new Rectangle(leftMargin, currentY, contentWidth, savingsHeight);
-                g.FillRectangle(new SolidBrush(savingsColor), savingsRect);
-                g.DrawRectangle(new Pen(savingsBorderColor, 1), savingsRect);
+        // SAVINGS SECTION - Full width - NO CHANGES
+        int savingsHeight = (int)(savingsFontSize * 2.5f);
+        var savingsRect = new Rectangle(leftMargin, currentY, contentWidth, savingsHeight);
+        g.FillRectangle(new SolidBrush(savingsColor), savingsRect);
+        g.DrawRectangle(new Pen(savingsBorderColor, 1), savingsRect);
 
-                string savingsText = $"YOU HAVE SAVED Rs. {invoice.TotalSavings:F2}";
-                var savingsSize = g.MeasureString(savingsText, savingsFont);
-                g.DrawString(savingsText, savingsFont, new SolidBrush(Color.Black),
-                    leftMargin + (contentWidth - savingsSize.Width) / 2,
-                    currentY + (savingsHeight - savingsSize.Height) / 2);
+        string savingsText = $"YOU HAVE SAVED Rs. {invoice.TotalSavings:F2}";
+        var savingsSize = g.MeasureString(savingsText, savingsFont);
+        g.DrawString(savingsText, savingsFont, new SolidBrush(Color.Black),
+            leftMargin + (contentWidth - savingsSize.Width) / 2,
+            currentY + (savingsHeight - savingsSize.Height) / 2);
 
-                currentY += savingsHeight + sectionSpacing;
+        currentY += savingsHeight + sectionSpacing;
 
-                // BILL AMOUNT SECTION - Full width
-                int billHeight = (int)(billAmountFontSize * 2.5f);
-                var billRect = new Rectangle(leftMargin, currentY, contentWidth, billHeight);
-                g.FillRectangle(new SolidBrush(billAmountColor), billRect);
-                g.DrawRectangle(new Pen(billAmountBorderColor, 2), billRect);
+        // BILL AMOUNT SECTION - Full width - NO CHANGES
+        int billHeight = (int)(billAmountFontSize * 2.5f);
+        var billRect = new Rectangle(leftMargin, currentY, contentWidth, billHeight);
+        g.FillRectangle(new SolidBrush(billAmountColor), billRect);
+        g.DrawRectangle(new Pen(billAmountBorderColor, 2), billRect);
 
-                string billText = $"BILL AMOUNT: ₹{invoice.BillAmount:F2}";
-                var billSize = g.MeasureString(billText, billAmountFont);
-                g.DrawString(billText, billAmountFont, new SolidBrush(Color.Black),
-                    leftMargin + (contentWidth - billSize.Width) / 2,
-                    currentY + (billHeight - billSize.Height) / 2);
+        string billText = $"BILL AMOUNT: ₹{invoice.BillAmount:F2}";
+        var billSize = g.MeasureString(billText, billAmountFont);
+        g.DrawString(billText, billAmountFont, new SolidBrush(Color.Black),
+            leftMargin + (contentWidth - billSize.Width) / 2,
+            currentY + (billHeight - billSize.Height) / 2);
 
-                currentY += billHeight + sectionSpacing;
+        currentY += billHeight + sectionSpacing;
 
-                // AMOUNT IN WORDS - Full width
-                string amountInWords = "Zero";
-                try
-                {
-                    amountInWords = invoice.AmountInWords;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error converting amount to words: {ex.Message}");
-                    amountInWords = $"Amount: {invoice.BillAmount:F2}";
-                }
+        // AMOUNT IN WORDS - Full width - NO CHANGES
+        string amountInWords = "Zero";
+        try
+        {
+            amountInWords = invoice.AmountInWords;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error converting amount to words: {ex.Message}");
+            amountInWords = $"Amount: {invoice.BillAmount:F2}";
+        }
 
-                string wordsText = $"Amount in Words: {amountInWords} Rupees Only";
+        string wordsText = $"Amount in Words: {amountInWords} Rupees Only";
 
-                // Word wrapping - use full content width
-                var words = wordsText.Split(' ');
-                string currentLine = "";
+        // Word wrapping - use full content width - NO CHANGES
+        var words = wordsText.Split(' ');
+        string currentLine = "";
 
-                foreach (string word in words)
-                {
-                    string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
-                    var testSize = g.MeasureString(testLine, amountWordsFont);
+        foreach (string word in words)
+        {
+            string testLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + " " + word;
+            var testSize = g.MeasureString(testLine, amountWordsFont);
 
-                    if (testSize.Width <= contentWidth)
-                    {
-                        currentLine = testLine;
-                    }
-                    else
-                    {
-                        if (!string.IsNullOrEmpty(currentLine))
-                        {
-                            var lineSize = g.MeasureString(currentLine, amountWordsFont);
-                            g.DrawString(currentLine, amountWordsFont, new SolidBrush(Color.Black),
-                                leftMargin + (contentWidth - lineSize.Width) / 2, currentY);
-                            currentY += (int)(lineSize.Height * 1.3f);
-                        }
-                        currentLine = word;
-                    }
-                }
-
+            if (testSize.Width <= contentWidth)
+            {
+                currentLine = testLine;
+            }
+            else
+            {
                 if (!string.IsNullOrEmpty(currentLine))
                 {
                     var lineSize = g.MeasureString(currentLine, amountWordsFont);
                     g.DrawString(currentLine, amountWordsFont, new SolidBrush(Color.Black),
                         leftMargin + (contentWidth - lineSize.Width) / 2, currentY);
-                    currentY += (int)(lineSize.Height * 1.3f) + sectionSpacing;
+                    currentY += (int)(lineSize.Height * 1.3f);
                 }
-
-                // FOOTER - Full width
-                g.DrawLine(new Pen(tableBorderColor, 1), leftMargin, currentY, rightMargin, currentY);
-                currentY += sectionSpacing;
-
-                string thankYouText = "Thank You & Visit Again";
-                var thankYouSize = g.MeasureString(thankYouText, footerMainFont);
-                g.DrawString(thankYouText, footerMainFont, new SolidBrush(Color.Black),
-                    leftMargin + (contentWidth - thankYouSize.Width) / 2, currentY);
-
-                currentY += (int)thankYouSize.Height + (lineHeight / 2);
-
-                string printDate = $"Printed on: {DateTime.Now:dd-MMM-yyyy HH:mm}";
-                var printSize = g.MeasureString(printDate, footerSmallFont);
-                g.DrawString(printDate, footerSmallFont, new SolidBrush(footerColor),
-                    leftMargin + (contentWidth - printSize.Width) / 2, currentY);
-
-                // Dispose resources
-                titleFont.Dispose();
-                storeDetailsFont.Dispose();
-                infoLabelFont.Dispose();
-                infoValueFont.Dispose();
-                tableHeaderFont.Dispose();
-                tableCellFont.Dispose();
-                totalRowFont.Dispose();
-                savingsFont.Dispose();
-                billAmountFont.Dispose();
-                amountWordsFont.Dispose();
-                footerMainFont.Dispose();
-                footerSmallFont.Dispose();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error drawing invoice: {ex.Message}", ex);
+                currentLine = word;
             }
         }
+
+        if (!string.IsNullOrEmpty(currentLine))
+        {
+            var lineSize = g.MeasureString(currentLine, amountWordsFont);
+            g.DrawString(currentLine, amountWordsFont, new SolidBrush(Color.Black),
+                leftMargin + (contentWidth - lineSize.Width) / 2, currentY);
+            currentY += (int)(lineSize.Height * 1.3f) + sectionSpacing;
+        }
+
+        // FOOTER - Full width - NO CHANGES
+        g.DrawLine(new Pen(tableBorderColor, 1), leftMargin, currentY, rightMargin, currentY);
+        currentY += sectionSpacing;
+
+        string thankYouText = "Thank You & Visit Again";
+        var thankYouSize = g.MeasureString(thankYouText, footerMainFont);
+        g.DrawString(thankYouText, footerMainFont, new SolidBrush(Color.Black),
+            leftMargin + (contentWidth - thankYouSize.Width) / 2, currentY);
+
+        currentY += (int)thankYouSize.Height + (lineHeight / 2);
+
+        string printDate = $"Printed on: {DateTime.Now:dd-MMM-yyyy HH:mm}";
+        var printSize = g.MeasureString(printDate, footerSmallFont);
+        g.DrawString(printDate, footerSmallFont, new SolidBrush(footerColor),
+            leftMargin + (contentWidth - printSize.Width) / 2, currentY);
+
+        // Dispose resources - NO CHANGES
+        titleFont.Dispose();
+        storeDetailsFont.Dispose();
+        infoLabelFont.Dispose();
+        infoValueFont.Dispose();
+        tableHeaderFont.Dispose();
+        tableCellFont.Dispose();
+        totalRowFont.Dispose();
+        savingsFont.Dispose();
+        billAmountFont.Dispose();
+        amountWordsFont.Dispose();
+        footerMainFont.Dispose();
+        footerSmallFont.Dispose();
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"Error drawing invoice: {ex.Message}", ex);
+    }
+}
     }
 }

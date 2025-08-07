@@ -101,7 +101,7 @@ namespace Sample_Billing_App
                 // Auto-refresh preview
                 ShowInvoicePreview();
                 
-                MessageBox.Show("Sample data loaded successfully! Invoice preview updated.", "Sample Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBox.Show("Sample data loaded successfully! Invoice preview updated.", "Sample Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -379,7 +379,7 @@ namespace Sample_Billing_App
 
                 // Use the new PDF-based printing approach
                 PdfInvoiceGenerator.PrintInvoice(_currentInvoice, cboPrinters.Text);
-                MessageBox.Show("Invoice sent to printer successfully!", "Print Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBox.Show("Invoice sent to printer successfully!", "Print Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
